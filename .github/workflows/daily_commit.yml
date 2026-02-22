@@ -1,30 +1,45 @@
-name: Daily Commit Automation
+name: Daily Automatic Commit
 
-# Run once per day at 9:00 AM UTC
+# Controls when the workflow will run
 on:
   schedule:
-    - cron: '0 9 * * *'
+    # Runs at 3:30 AM UTC every day
+    - cron: '30 3 * * *'
+  
+  # Allows you to manually trigger it for testing
+  workflow_dispatch:
 
-# Define the job
+# Jobs that this workflow will perform
 jobs:
-  commit-job:
+  create-daily-commit:
+    # The type of runner that the job will run on
     runs-on: ubuntu-latest
+    
+    # Steps represent a sequence of tasks
     steps:
-      # Step 1: Checkout the repository
-      - name: Checkout Repository
+      # Step 1: Check out the repository code
+      - name: Checkout repository
         uses: actions/checkout@v3
-
-      # Step 2: Make a daily commit
-      - name: Update repository - 23f2003833@ds.study.iitm.ac.in
+      
+      # Step 2: Configure Git with your email (THIS IS THE REQUIRED STEP)
+      - name: Configure Git with email 23f2003833@ds.study.iitm.ac.in
         run: |
-          # Create or update a file to have something to commit
-          echo "Daily update $(date)" >> daily_update.txt
-          
-          # Configure Git author
-          git config user.name "GitHub Actions"
-          git config user.email "23f2003833@ds.study.iitm.ac.in"
-          
-          # Stage, commit, and push the changes
-          git add daily_update.txt
-          git commit -m "Daily automated commit"
-          git push
+          git config --global user.name "GitHub Action Bot"
+          git config --global user.email "23f2003833@ds.study.iitm.ac.in"
+      
+      # Step 3: Create a file with today's date
+      - name: Create daily update file
+        run: |
+          echo "Daily update for $(date)" > daily-update.txt
+          echo "Commit created by scheduled workflow" >> daily-update.txt
+          echo "Timestamp: $(date)" >> daily-update.txt
+      
+      # Step 4: Commit the changes
+      - name: Commit changes
+        run: |
+          git add daily-update.txt
+          git commit -m "Daily automatic commit for $(date)"
+      
+      # Step 5: Push changes back to repository
+      - name: Push changes
+        run: git push

@@ -9,19 +9,22 @@ on:
   # Allows you to manually trigger it for testing
   workflow_dispatch:
 
+# 👇 IMPORTANT: Add these permissions
+permissions:
+  contents: write    # This allows writing/ pushing to the repository
+
 # Jobs that this workflow will perform
 jobs:
   create-daily-commit:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
     
-    # Steps represent a sequence of tasks
     steps:
       # Step 1: Check out the repository code
       - name: Checkout repository
         uses: actions/checkout@v3
       
-      # Step 2: Configure Git with your email (THIS IS THE REQUIRED STEP)
+      # Step 2: Configure Git with your email
       - name: Configure Git with email 23f2003833@ds.study.iitm.ac.in
         run: |
           git config --global user.name "GitHub Action Bot"
@@ -38,8 +41,10 @@ jobs:
       - name: Commit changes
         run: |
           git add daily-update.txt
-          git commit -m "Daily automatic commit for $(date)"
+          git commit -m "Daily automatic commit for $(date)" || echo "No changes to commit"
       
-      # Step 5: Push changes back to repository
+      # 👇 UPDATED Step 5: Push changes with proper authentication
       - name: Push changes
-        run: git push
+        run: |
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+          git push
